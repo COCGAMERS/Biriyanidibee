@@ -3,13 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Map Report System</title>
+<title>Dinajpur Report Map</title>
 
-<!-- Leaflet CSS -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 body {
@@ -17,7 +13,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Top Header */
+/* Header */
 .header {
   position: absolute;
   top: 0;
@@ -26,13 +22,11 @@ body {
   padding: 10px;
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  display: flex;
-  gap: 10px;
 }
 
 .search-box {
-  flex: 1;
-  padding: 8px;
+  width: 100%;
+  padding: 10px;
   border-radius: 20px;
   border: 1px solid #ccc;
 }
@@ -43,24 +37,11 @@ body {
   width: 100%;
 }
 
-/* Summary Bar */
-.summary {
-  position: absolute;
-  top: 60px;
-  left: 10px;
-  background: green;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  z-index: 1000;
-}
-
 /* Floating Add Button */
 .add-btn {
   position: absolute;
   right: 20px;
-  bottom: 120px;
+  bottom: 140px;
   background: orange;
   color: white;
   width: 55px;
@@ -95,74 +76,145 @@ body {
   border-radius: 10px;
   margin-top: 10px;
 }
+
+/* Popup Form */
+.form-popup {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: none;
+  z-index: 2000;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.form-popup input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <input type="text" class="search-box" placeholder="Search location..." />
+  <input type="text" id="searchInput" class="search-box" placeholder="Enter location name..." />
 </div>
-
-<div class="summary">Total Spots: 101</div>
 
 <div id="map"></div>
 
-<div class="add-btn">+</div>
+<div class="add-btn" onclick="openForm()">+</div>
 
 <div class="bottom-panel">
-  <h3>Today's Reports</h3>
-
-  <div class="report-card">
-    <strong>Rafael Nadal - Road Closed</strong>
-    <p>Location: Agargaon</p>
-  </div>
-
-  <div class="report-card">
-    <strong>Patrick Mahomes - Traffic Jam</strong>
-    <p>Location: Banani</p>
-  </div>
-
+  <h3>Reports</h3>
+  <div id="reportList"></div>
 </div>
 
-<!-- Leaflet JS -->
+<div class="form-popup" id="reportForm">
+  <h3>Add Report</h3>
+  <input type="text" id="reportTitle" placeholder="Report Title"/>
+  <input type="text" id="reportLocation" placeholder="Location Name"/>
+  <button onclick="addCustomReport()">Submit</button>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-// Initialize Map (Bangladesh Center)
+// Initialize Map centered on Dinajpur
 var map = L.map('map').setView([25.6279, 88.6332], 13);
 
-// OpenStreetMap Layer
+// Tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-// Custom Red Icon
+// Custom icon
 var redIcon = L.icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
   iconSize: [30, 30]
 });
 
-// Example Markers
-var locations = [
-  [23.8103, 90.4125, "Dhaka - Traffic Jam"],
-  [22.3569, 91.7832, "Chittagong - Road Closed"],
-  [24.3636, 88.6241, "Rajshahi - Accident"],
-  [25.7439, 89.2752, "Rangpur - Jam"]
-];
-
-locations.forEach(function(loc) {
-  L.marker([loc[0], loc[1]], {icon: redIcon})
-    .addTo(map)
-    .bindPopup(loc[2]);
-});
-
-// Add marker on map click
+// Click map to add marker
 map.on('click', function(e) {
   L.marker(e.latlng, {icon: redIcon})
     .addTo(map)
     .bindPopup("New Report Here")
     .openPopup();
 });
+
+// Search and insert location
+document.getElementById("searchInput").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    let locationName = this.value;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.length > 0) {
+          let lat = data[0].lat;
+          let lon = data[0].lon;
+
+          map.setView([lat, lon], 15);
+
+          L.marker([lat, lon], {icon: redIcon})
+            .addTo(map)
+            .bindPopup(locationName)
+            .openPopup();
+
+          addToList(locationName, locationName);
+        } else {
+          alert("Location not found");
+        }
+      });
+  }
+});
+
+// Open form
+function openForm() {
+  document.getElementById("reportForm").style.display = "block";
+}
+
+// Add custom report
+function addCustomReport() {
+  let title = document.getElementById("reportTitle").value;
+  let location = document.getElementById("reportLocation").value;
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.length > 0) {
+        let lat = data[0].lat;
+        let lon = data[0].lon;
+
+        map.setView([lat, lon], 15);
+
+        L.marker([lat, lon], {icon: redIcon})
+          .addTo(map)
+          .bindPopup(title)
+          .openPopup();
+
+        addToList(title, location);
+
+        document.getElementById("reportForm").style.display = "none";
+      } else {
+        alert("Location not found");
+      }
+    });
+}
+
+// Add report to bottom list
+function addToList(title, location) {
+  let reportList = document.getElementById("reportList");
+
+  let card = document.createElement("div");
+  card.className = "report-card";
+  card.innerHTML = `<strong>${title}</strong><p>${location}</p>`;
+
+  reportList.appendChild(card);
+}
 </script>
 
 </body>
