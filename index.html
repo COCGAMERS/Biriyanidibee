@@ -1,39 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>
-      বিরিয়ানি দিবে
-    </title>
-    <meta name="description" content="Briyani Map Application" />
-    <meta name="author" content="Briyani Map" />
-    <!-- TODO: Update og:title to match your application name -->
-    <meta property="og:title" content="বিরিয়ানি দিবে" />
-    <meta property="og:description" content="Find the best Biriyani spots near you" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/apple-touch-icon.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="/apple-touch-icon.png" />
-    <!-- Google AdSense -->
-    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3190607368883615" crossorigin="anonymous">
-    </script>
-    <script type="module" crossorigin="" src="/assets/index-BTYr5ghs.js">
-    </script>
-    <link rel="modulepreload" crossorigin="" href="/assets/vendor-B_MFtv3H.js" />
-    <link rel="modulepreload" crossorigin="" href="/assets/ui-DzJUNsqa.js" />
-    <link rel="modulepreload" crossorigin="" href="/assets/map-Bgx0i07r.js" />
-    <link rel="modulepreload" crossorigin="" href="/assets/supabase-Bq8q3OL3.js" />
-    <link rel="stylesheet" crossorigin="" href="/assets/index-Bslx01-X.css" />
-  </head>
-  <body>
-    <div id="root">
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map Web Demo</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-weight: bold;
+    color: green;
+    margin-right: 20px;
+}
+
+.search-box {
+    flex: 1;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+}
+
+/* Map */
+#map {
+    height: 100vh;
+    width: 100%;
+}
+
+/* Floating Button */
+.floating-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 100px;
+    width: 55px;
+    height: 55px;
+    background: orange;
+    border-radius: 50%;
+    color: white;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+/* Bottom Panel */
+.bottom-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: #1f7a3f;
+    color: white;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    padding: 15px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.list-item {
+    background: white;
+    color: black;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">🍛 বিরিয়ানি দিবে</div>
+    <div class="search-box">
+        <input type="text" placeholder="মসজিদ বা এলাকা খুঁজুন...">
     </div>
-    <!-- Native Banner Ad -->
-    <script async="async" data-cfasync="false" src="https://pl28778156.effectivegatecpm.com/763f28dcf5ca559dd1eccf4948920e6b/invoke.js">
-    </script>
-    <div id="container-763f28dcf5ca559dd1eccf4948920e6b">
+</div>
+
+<div id="map"></div>
+
+<div class="floating-btn">+</div>
+
+<div class="bottom-panel">
+    <h3>আজকের সক্রিয় স্পট</h3>
+    <div class="list-item">
+        Rafael Nadal – ৫ প্লেট বাকি
     </div>
-  </body>
+    <div class="list-item">
+        Patrick Mahomes – ৩ প্লেট বাকি
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// Initialize map centered on Bangladesh
+var map = L.map('map').setView([23.6850, 90.3563], 7);
+
+// OpenStreetMap tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Sample markers
+L.marker([23.8103, 90.4125]).addTo(map)
+    .bindPopup("ঢাকা");
+
+L.marker([22.3569, 91.7832]).addTo(map)
+    .bindPopup("চট্টগ্রাম");
+
+L.marker([24.8949, 91.8687]).addTo(map)
+    .bindPopup("সিলেট");
+</script>
+
+</body>
 </html>
