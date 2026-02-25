@@ -1,143 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Mosque Entry System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial;
-      background: #eef2f3;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    h2 {
-      margin-top: 30px;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      width: 320px;
-      margin: 20px auto;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input, button {
-      width: 90%;
-      padding: 10px;
-      margin: 8px;
-      font-size: 14px;
-    }
-    button {
-      background: green;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    table {
-      margin: 30px auto;
-      border-collapse: collapse;
-      width: 90%;
-      max-width: 700px;
-      background: white;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-    }
-    th {
-      background: #2e7d32;
-      color: white;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mosque Prayer Tracker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Mosque Entry Form</h2>
+    <div class="container">
+        <h2>Mosque Entry Form</h2>
+        
+        <form id="prayerForm">
+            <input type="text" id="mosqueName" placeholder="Mosque Name" required>
+            <input type="date" id="visitDate" required>
+            
+            <select id="prayerType" required>
+                <option value="" disabled selected>Select Prayer</option>
+                <option value="Fajar">Fajar</option>
+                <option value="Zahur">Zahur</option>
+                <option value="Asar">Asar</option>
+                <option value="Magrib">Magrib</option>
+                <option value="Esha">Esha</option>
+            </select>
 
-<form id="entryForm">
-  <input type="text" id="mosqueName" placeholder="Mosque Name" required>
-  <input type="time" id="time" required>
-  <input type="text" id="userName" placeholder="Your Name" required>
-  <button type="submit">Submit</button>
-</form>
+            <button type="submit">Submit Entry</button>
+        </form>
 
-<h2>Saved Entries</h2>
+        <hr>
 
-<table>
-  <thead>
-    <tr>
-      <th>Mosque</th>
-      <th>Time</th>
-      <th>Name</th>
-    </tr>
-  </thead>
-  <tbody id="dataTable"></tbody>
-</table>
+        <h3>Submitted Entries</h3>
+        
+        <table id="entryTable">
+            <thead>
+                <tr>
+                    <th>Mosque Name</th>
+                    <th>Date</th>
+                    <th>Prayer</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* 🔥 REPLACE WITH YOUR FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const form = document.getElementById("entryForm");
-const table = document.getElementById("dataTable");
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const mosqueName = document.getElementById("mosqueName").value;
-  const time = document.getElementById("time").value;
-  const userName = document.getElementById("userName").value;
-
-  try {
-    await addDoc(collection(db, "entries"), {
-      mosqueName,
-      time,
-      userName,
-      createdAt: new Date()
-    });
-
-    form.reset();
-    loadData();
-    alert("Entry submitted successfully!");
-  } catch (error) {
-    alert("Error: " + error.message);
-  }
-});
-
-async function loadData() {
-  table.innerHTML = "";
-  const q = query(collection(db, "entries"), orderBy("createdAt", "desc"));
-  const querySnapshot = await getDocs(q);
-
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    table.innerHTML += `
-      <tr>
-        <td>${data.mosqueName}</td>
-        <td>${data.time}</td>
-        <td>${data.userName}</td>
-      </tr>
-    `;
-  });
-}
-
-loadData();
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
