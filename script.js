@@ -1,35 +1,66 @@
+// Initialize Supabase
+const _supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+
 const prayerForm = document.getElementById('prayerForm');
-const tableBody = document.getElementById('tableBody');
+const entriesList = document.getElementById('entriesList');
 
-// Load existing data from local storage on page load
-window.onload = () => {
-    const savedEntries = JSON.parse(localStorage.getItem('mosqueEntries')) || [];
-    savedEntries.forEach(entry => addRowToTable(entry));
-};
+// 1. Fetch data from database on load
+async function fetchEntries() {
+    const { data, error } = await _supabase
+        .from('mosque_entries')
+        .select('*')
+        .order('id', { ascending: false });
 
-prayerForm.addEventListener('submit', (e) => {
+    if (error) console.error(error);
+    else renderEntries(data);
+}
+
+// 2. Add New Entry
+prayerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    const entry = {
-        name: document.getElementById('mosqueName').value,
-        date: document.getElementById('visitDate').value,
-        prayer: document.getElementById('prayerType').value
+    
+    const newEntry = {
+        mosque_name: document.getElementById('mosqueName').value,
+        prayer_date: document.getElementById('visitDate').value,
+        prayer_type: document.getElementById('prayerType').value,
+        likes: 0
     };
 
-    // Save to Local Storage
-    const savedEntries = JSON.parse(localStorage.getItem('mosqueEntries')) || [];
-    savedEntries.push(entry);
-    localStorage.setItem('mosqueEntries', JSON.stringify(savedEntries));
-
-    addRowToTable(entry);
-    prayerForm.reset();
+    const { error } = await _supabase.from('mosque_entries').insert([newEntry]);
+    if (!error) {
+        prayerForm.reset();
+        fetchEntries(); // Refresh list
+    }
 });
 
-function addRowToTable(entry) {
-    const row = `<tr>
-        <td>${entry.name}</td>
-        <td>${entry.date}</td>
-        <td>${entry.prayer}</td>
-    </tr>`;
-    tableBody.innerHTML += row;
+// 3. Handle Like Click
+async function handleLike(id, currentLikes) {
+    const { error } = await _supabase
+        .from('mosque_entries')
+        .update({ likes: currentLikes + 1 })
+        .eq('id', id);
+
+    if (!error) fetchEntries(); // Refresh list to show new like count
 }
+
+// 4. Render to UI
+
+function renderEntries(entries) {
+    entriesList.innerHTML = '';
+    entries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'entry-card';
+        div.innerHTML = `
+            <div class="entry-info">
+                <strong>${entry.mosque_name}</strong><br>
+                <small>${entry.prayer_date} - ${entry.prayer_type}</small>
+            </div>
+            <button class="like-btn" onclick="handleLike(${entry.id}, ${entry.likes})">
+                ❤️ <span>${entry.likes}</span>
+            </button>
+        `;
+        entriesList.appendChild(div);
+    });
+}
+
+fetchEntries();
