@@ -1,220 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dinajpur Report Map</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
-
-/* Header */
-.header {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  background: white;
-  padding: 10px;
-  z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.search-box {
-  width: 100%;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-
-/* Map */
-#map {
-  height: 100vh;
-  width: 100%;
-}
-
-/* Floating Add Button */
-.add-btn {
-  position: absolute;
-  right: 20px;
-  bottom: 140px;
-  background: orange;
-  color: white;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  font-size: 30px;
-  text-align: center;
-  line-height: 55px;
-  cursor: pointer;
-  z-index: 1000;
-}
-
-/* Bottom Panel */
-.bottom-panel {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: #0f6b2f;
-  color: white;
-  max-height: 250px;
-  overflow-y: auto;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  padding: 10px;
-  z-index: 1000;
-}
-
-.report-card {
-  background: white;
-  color: black;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-/* Popup Form */
-.form-popup {
-  position: absolute;
-  top: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  display: none;
-  z-index: 2000;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-}
-
-.form-popup input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-}
-</style>
+    <title>Mosque Entry</title>
+    <style>
+        body { font-family: Arial; background: #f2f2f2; text-align: center; }
+        form { background: white; padding: 20px; width: 300px; margin: 20px auto; border-radius: 10px; }
+        input, button { width: 90%; padding: 10px; margin: 10px; }
+        button { background: green; color: white; border: none; cursor: pointer; }
+        table { margin: auto; background: white; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; }
+    </style>
 </head>
 <body>
 
-<div class="header">
-  <input type="text" id="searchInput" class="search-box" placeholder="Enter location name..." />
-</div>
+<h2>Mosque Entry Form</h2>
 
-<div id="map"></div>
+<form id="entryForm">
+    <input type="text" id="mosqueName" placeholder="Mosque Name" required>
+    <input type="time" id="time" required>
+    <input type="text" id="userName" placeholder="Your Name" required>
+    <button type="submit">Submit</button>
+</form>
 
-<div class="add-btn" onclick="openForm()">+</div>
-
-<div class="bottom-panel">
-  <h3>Reports</h3>
-  <div id="reportList"></div>
-</div>
-
-<div class="form-popup" id="reportForm">
-  <h3>Add Report</h3>
-  <input type="text" id="reportTitle" placeholder="Report Title"/>
-  <input type="text" id="reportLocation" placeholder="Location Name"/>
-  <button onclick="addCustomReport()">Submit</button>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<h2>Saved Entries</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Mosque</th>
+            <th>Time</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody id="dataTable"></tbody>
+</table>
 
 <script>
-// Initialize Map centered on Dinajpur
-var map = L.map('map').setView([25.6279, 88.6332], 13);
+const form = document.getElementById("entryForm");
 
-// Tile layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-// Custom icon
-var redIcon = L.icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-  iconSize: [30, 30]
+    const data = {
+        mosqueName: document.getElementById("mosqueName").value,
+        time: document.getElementById("time").value,
+        userName: document.getElementById("userName").value
+    };
+
+    await fetch("http://localhost:5000/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    loadData();
 });
 
-// Click map to add marker
-map.on('click', function(e) {
-  L.marker(e.latlng, {icon: redIcon})
-    .addTo(map)
-    .bindPopup("New Report Here")
-    .openPopup();
-});
+async function loadData() {
+    const res = await fetch("http://localhost:5000/entries");
+    const entries = await res.json();
 
-// Search and insert location
-document.getElementById("searchInput").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    let locationName = this.value;
+    const table = document.getElementById("dataTable");
+    table.innerHTML = "";
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.length > 0) {
-          let lat = data[0].lat;
-          let lon = data[0].lon;
-
-          map.setView([lat, lon], 15);
-
-          L.marker([lat, lon], {icon: redIcon})
-            .addTo(map)
-            .bindPopup(locationName)
-            .openPopup();
-
-          addToList(locationName, locationName);
-        } else {
-          alert("Location not found");
-        }
-      });
-  }
-});
-
-// Open form
-function openForm() {
-  document.getElementById("reportForm").style.display = "block";
-}
-
-// Add custom report
-function addCustomReport() {
-  let title = document.getElementById("reportTitle").value;
-  let location = document.getElementById("reportLocation").value;
-
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.length > 0) {
-        let lat = data[0].lat;
-        let lon = data[0].lon;
-
-        map.setView([lat, lon], 15);
-
-        L.marker([lat, lon], {icon: redIcon})
-          .addTo(map)
-          .bindPopup(title)
-          .openPopup();
-
-        addToList(title, location);
-
-        document.getElementById("reportForm").style.display = "none";
-      } else {
-        alert("Location not found");
-      }
+    entries.forEach(e => {
+        table.innerHTML += `
+            <tr>
+                <td>${e.mosqueName}</td>
+                <td>${e.time}</td>
+                <td>${e.userName}</td>
+            </tr>
+        `;
     });
 }
 
-// Add report to bottom list
-function addToList(title, location) {
-  let reportList = document.getElementById("reportList");
-
-  let card = document.createElement("div");
-  card.className = "report-card";
-  card.innerHTML = `<strong>${title}</strong><p>${location}</p>`;
-
-  reportList.appendChild(card);
-}
+loadData();
 </script>
 
 </body>
