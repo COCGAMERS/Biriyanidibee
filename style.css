@@ -1,51 +1,27 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6;
+.entry-card {
     display: flex;
-    justify-content: center;
-    padding: 20px;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
 }
 
-.container {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 500px;
-}
-
-h2, h3 { text-align: center; color: #2c3e50; }
-
-form { display: flex; flex-direction: column; gap: 10px; }
-
-input, select, button {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-button {
-    background-color: #27ae60;
-    color: white;
-    border: none;
+.like-btn {
+    background: #fff0f0;
+    border: 1px solid #ffcccc;
+    color: #e74c3c;
+    padding: 5px 12px;
+    border-radius: 20px;
     cursor: pointer;
-    transition: 0.3s;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-button:hover { background-color: #219150; }
-
-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
+.like-btn:hover {
+    background: #ffe0e0;
 }
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-}
-
-th { background-color: #f8f9fa; }
