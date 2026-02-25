@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mosque Tracker with Likes</title>
+    <title>Mosque Prayer Tracker</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
     <div class="container">
         <h2>Mosque Entry Form</h2>
+        
         <form id="prayerForm">
             <input type="text" id="mosqueName" placeholder="Mosque Name" required>
             <input type="date" id="visitDate" required>
+            
             <select id="prayerType" required>
                 <option value="" disabled selected>Select Prayer</option>
                 <option value="Fajar">Fajar</option>
@@ -21,14 +23,27 @@
                 <option value="Magrib">Magrib</option>
                 <option value="Esha">Esha</option>
             </select>
+
             <button type="submit">Submit Entry</button>
         </form>
 
         <hr>
-        <h3>Community Entries</h3>
-        <div id="entriesList">
-            </div>
+
+        <h3>Submitted Entries</h3>
+        
+        <table id="entryTable">
+            <thead>
+                <tr>
+                    <th>Mosque Name</th>
+                    <th>Date</th>
+                    <th>Prayer</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
