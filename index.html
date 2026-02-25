@@ -1,49 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Mosque Entry Website</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f2f5f7;
-  text-align: center;
-}
-form {
-  background: #fff;
-  width: 320px;
-  margin: 30px auto;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
-}
-input, button {
-  width: 90%;
-  padding: 10px;
-  margin: 8px;
-}
-button {
-  background: #0a7a3c;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-table {
-  margin: 20px auto;
-  border-collapse: collapse;
-  background: white;
-}
-th, td {
-  padding: 10px;
-  border: 1px solid #ddd;
-}
-</style>
+  <title>Mosque Entry System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      background: #eef2f3;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      width: 320px;
+      margin: 20px auto;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin: 8px;
+      font-size: 14px;
+    }
+    button {
+      background: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    table {
+      margin: 30px auto;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 700px;
+      background: white;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background: #2e7d32;
+      color: white;
+    }
+  </style>
 </head>
-
 <body>
 
-<h2>🕌 Mosque Entry System</h2>
+<h2>Mosque Entry Form</h2>
 
 <form id="entryForm">
   <input type="text" id="mosqueName" placeholder="Mosque Name" required>
@@ -52,31 +62,30 @@ th, td {
   <button type="submit">Submit</button>
 </form>
 
-<h3>📋 Saved Entries</h3>
+<h2>Saved Entries</h2>
 
 <table>
-<thead>
-<tr>
-  <th>Mosque</th>
-  <th>Time</th>
-  <th>Name</th>
-</tr>
-</thead>
-<tbody id="dataTable"></tbody>
+  <thead>
+    <tr>
+      <th>Mosque</th>
+      <th>Time</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody id="dataTable"></tbody>
 </table>
 
-<!-- 🔥 Firebase (ONLY module version – important) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } 
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* 🔴 REPLACE THIS WITH YOUR OWN FIREBASE CONFIG */
+/* 🔥 REPLACE WITH YOUR FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PROJECT_ID.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT_ID.appspot.com",
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
   messagingSenderId: "XXXX",
   appId: "XXXX"
 };
@@ -90,26 +99,38 @@ const table = document.getElementById("dataTable");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  await addDoc(collection(db, "entries"), {
-    mosque: mosqueName.value,
-    time: time.value,
-    name: userName.value
-  });
+  const mosqueName = document.getElementById("mosqueName").value;
+  const time = document.getElementById("time").value;
+  const userName = document.getElementById("userName").value;
 
-  form.reset();
-  loadData();
+  try {
+    await addDoc(collection(db, "entries"), {
+      mosqueName,
+      time,
+      userName,
+      createdAt: new Date()
+    });
+
+    form.reset();
+    loadData();
+    alert("Entry submitted successfully!");
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
 });
 
 async function loadData() {
   table.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "entries"));
-  snapshot.forEach(doc => {
-    const d = doc.data();
+  const q = query(collection(db, "entries"), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
     table.innerHTML += `
       <tr>
-        <td>${d.mosque}</td>
-        <td>${d.time}</td>
-        <td>${d.name}</td>
+        <td>${data.mosqueName}</td>
+        <td>${data.time}</td>
+        <td>${data.userName}</td>
       </tr>
     `;
   });
