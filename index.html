@@ -2,48 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mosque Prayer Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Checkout Page</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; }
+        .checkout-container { border: 1px solid #ddd; padding: 20px; border-radius: 8px; width: 400px; }
+        .item-details { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; background: #28a745; color: white; border: none; padding: 15px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        #card-element { border: 1px solid #ccc; padding: 10px; border-radius: 4px; }
+    </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Mosque Entry Form</h2>
-        
-        <form id="prayerForm">
-            <input type="text" id="mosqueName" placeholder="Mosque Name" required>
-            <input type="date" id="visitDate" required>
-            
-            <select id="prayerType" required>
-                <option value="" disabled selected>Select Prayer</option>
-                <option value="Fajar">Fajar</option>
-                <option value="Zahur">Zahur</option>
-                <option value="Asar">Asar</option>
-                <option value="Magrib">Magrib</option>
-                <option value="Esha">Esha</option>
-            </select>
-
-            <button type="submit">Submit Entry</button>
-        </form>
-
-        <hr>
-
-        <h3>Submitted Entries</h3>
-        
-        <table id="entryTable">
-            <thead>
-                <tr>
-                    <th>Mosque Name</th>
-                    <th>Date</th>
-                    <th>Prayer</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                </tbody>
-        </table>
+<div class="checkout-container">
+    <h2>Complete Purchase</h2>
+    <div class="item-details">
+        <p><strong>Item:</strong> Professional Camera Lens</p>
+        <p><strong>Price:</strong> $599.00</p>
     </div>
 
-    <script src="script.js"></script>
+    <form id="payment-form">
+        <label>Full Name</label>
+        <input type="text" id="name" placeholder="Jane Doe" required>
+        
+        <label>Credit Card</label>
+        <div id="card-element">
+            </div>
+
+        <button type="submit">Pay Now</button>
+    </form>
+</div>
+
 </body>
 </html>
